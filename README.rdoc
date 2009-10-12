@@ -6,7 +6,7 @@ This is really just a sketch of a library at the moment, but it will let you do 
 * At least one Google Docs account -- though it's nice to have separate ones for dev and prod
 
 == Quick setup
-* gem install dependencies
+* gem install dependencies (see requirements above)
 * Copy google_docs.rb to your Rails project lib directory
 * Make a file: config/google_docs.yml with settings for your environments, e.g.:
 
@@ -29,12 +29,12 @@ This is really just a sketch of a library at the moment, but it will let you do 
 
 === Spreadsheets API
 
-* Create a spreadsheet
+==== Create a spreadsheet
   g = GoogleDocs::Spreadsheets.new
   gs = g.create! :title => "My Cool Spreadsheet" 
 
-* Add collaborators to a spreadsheet
+==== Add collaborators to a spreadsheet
   g.add_user gs, ["ghostfacekillah@gmail.com", "raekwonthechef@gmail.com"], :writer
 
-* Get a link to the spreadsheet
+==== Get a link to the spreadsheet
 	gs.link
