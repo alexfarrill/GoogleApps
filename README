@@ -24,3 +24,7 @@ EXAMPLES:
 
 	* Add collaborators to a spreadsheet
 	g.add_user gs, ["ghostfacekillah@gmail.com", "raekwonthechef@gmail.com"], :writer
+
+        * Get a link to the spreadsheet
+	gs.link
+
