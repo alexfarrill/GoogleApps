@@ -71,12 +71,12 @@ class GoogleDocs
     attr_reader :token
 
     def initialize
-      @token = auth :writely
+      @token = auth(:writely).merge( "GData-Version" => "2.0", "Content-Type" => "application/atom+xml" )
     end
     
     def create!( opts = {} )
       # sub document for spreadsheet if you want to create a document
-      headers = @token.merge( "GData-Version" => "2.0", "Content-Type" => "application/atom+xml" )
+      headers = @token
       body = String.new
       builder = Builder::XmlMarkup.new(:indent => 2, :target => body)
       builder.instruct!
@@ -96,7 +96,7 @@ class GoogleDocs
     end
   
     def add_user(doc, emails, role)
-      headers = @token.merge( "GData-Version" => "2.0", "Content-Type" => "application/atom+xml" )
+      headers = @token
     
       Array(emails).each do |email|
         body = String.new
@@ -116,12 +116,27 @@ class GoogleDocs
     attr_reader :token
 
     def initialize
-      @token = auth :cl
+      @token = auth(:cl).merge( "GData-Version" => "2.0", "Content-Type" => "application/atom+xml" )
     end
 
     def list
       headers = @token
       response = self.class.get "http://www.google.com/calendar/feeds/default/owncalendars/full", :headers => headers, :body => "", :query => {}
+    end
+    
+    def create_event!( opts = {} )
+      headers = @token
+      body = String.new
+      builder = Builder::XmlMarkup.new(:indent => 2, :target => body)
+      builder.entry(:xmlns => "http://www.w3.org/2005/Atom", "xmlns:gd" => "http://schemas.google.com/g/2005") do |entry|
+        entry.category :scheme => "http://schemas.google.com/g/2005#kind", :term => "http://schemas.google.com/g/2005#event"
+        entry.title opts[:title], :type => "text"
+        entry.content opts[:description], :type => "text"
+        entry.tag! "gd:where", :valueString => opts[:location]
+        entry.tag! "gd:when", :startTime => opts[:starts_at].strftime("%Y-%m-%dT%H:%M:%S.000Z"), :endTime => opts[:ends_at].strftime("%Y-%m-%dT%H:%M:%S.000Z")
+      end
+      
+      response = self.class.post "http://www.google.com/calendar/feeds/default/private/full", :headers => headers, :body => body, :query => {}
     end
   end
   
