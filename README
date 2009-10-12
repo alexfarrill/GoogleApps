@@ -2,6 +2,7 @@ This is really just a skeleton of a library at the moment, but it will let you d
 
 SETUP:
 Copy google_docs.rb to your Rails project lib directory
+Install Crack 
 Make a file: config/google_docs.yml with settings for your environments, e.g.:
 
 development:
