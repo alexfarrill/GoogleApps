@@ -2,13 +2,13 @@
 This is really just a sketch of a library at the moment, but it will let you do some basic things with the GoogleDocs API.  If you're interested in building this out more, send me an email or just fork the project.
 
 == Requirements
-HTTParty (and Crack)
-At least one Google Docs account -- though it's nice to have separate ones for dev and prod
+* HTTParty (and Crack)
+* At least one Google Docs account -- though it's nice to have separate ones for dev and prod
 
 == Quick setup
-Copy google_docs.rb to your Rails project lib directory
-Install HTTParty (including Crack dependency)
-Make a file: config/google_docs.yml with settings for your environments, e.g.:
+* gem install dependencies
+* Copy google_docs.rb to your Rails project lib directory
+* Make a file: config/google_docs.yml with settings for your environments, e.g.:
 
   development:
     email: soandso@gmail.com
@@ -20,21 +20,21 @@ Make a file: config/google_docs.yml with settings for your environments, e.g.:
 
 === Calendars API
 
-* List calendars on your account
-  %	g = GoogleDocs::Calendars.new
-  %	g.list
+==== List calendars on your account
+  g = GoogleDocs::Calendars.new
+  g.list
 
-* Add an event to my calendar
-  % g.create_event! :title => "My Event", :description => "Please come...", :starts_at => Time.zone.now, :ends_at => 1.day.from_now
+==== Add an event to my calendar
+  g.create_event! :title => "My Event", :description => "Please come...", :starts_at => Time.zone.now, :ends_at => 1.day.from_now
 
-=== Spreadsheets API #
+=== Spreadsheets API
 
 * Create a spreadsheet
-  % g = GoogleDocs::Spreadsheets.new
-  % gs = g.create! :title => "My Cool Spreadsheet" 
+  g = GoogleDocs::Spreadsheets.new
+  gs = g.create! :title => "My Cool Spreadsheet" 
 
 * Add collaborators to a spreadsheet
-  % g.add_user gs, ["ghostfacekillah@gmail.com", "raekwonthechef@gmail.com"], :writer
+  g.add_user gs, ["ghostfacekillah@gmail.com", "raekwonthechef@gmail.com"], :writer
 
 * Get a link to the spreadsheet
-	% gs.link
+	gs.link
