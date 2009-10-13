@@ -40,4 +40,4 @@ If you're interested in building this out more, send me an email or just fork th
   g.add_user gs, ["ghostfacekillah@gmail.com", "raekwonthechef@gmail.com"], :writer
 
 ==== Get a link to the spreadsheet
-	gs.link
+  gs.link
