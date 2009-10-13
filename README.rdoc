@@ -13,8 +13,8 @@ If you're interested in building this out more, send me an email or just fork th
 * Make a file: config/google_docs.yml with settings for your environments, e.g.:
 
   development:
-  email: soandso@gmail.com
-  password: pass
+    email: soandso@gmail.com
+    password: pass
   
 (Alternatively, or if you're not using Rails, just edit the google_docs.rb file so that @@config is a hash with this info.)
 
