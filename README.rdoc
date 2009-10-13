@@ -1,5 +1,7 @@
 = Google Docs
-This is really just a sketch of a library at the moment, but it will let you do some basic things with the GoogleDocs API.  If you're interested in building this out more, send me an email or just fork the project.
+This is really just a sketch of a library at the moment, but it will let you do some basic things with the GoogleDocs API.  I've built this with the idea of using it in a Rails project because that's what I'm using it for, but it doesn't have to be so...  
+
+If you're interested in building this out more, send me an email or just fork the project.
 
 == Requirements
 * HTTParty (and Crack)
@@ -9,7 +11,6 @@ This is really just a sketch of a library at the moment, but it will let you do 
 * gem install dependencies (see requirements above)
 * Copy google_docs.rb to your Rails project lib directory
 * Make a file: config/google_docs.yml with settings for your environments, e.g.:
-
   development:
     email: soandso@gmail.com
     password: pass
