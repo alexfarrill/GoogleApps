@@ -1,39 +1,47 @@
-= Google Docs
-This is really just a sketch of a library at the moment, but it will let you do some basic things with the GoogleDocs API.  I've built this with the idea of using it in a Rails project because that's what I'm using it for, but it doesn't have to be so...  
+= GoogleApps
+This is really just a sketch of a library at the moment, but it will let you do some basic things with the GoogleApps API.  I've built this with the idea of using it in a Rails project because that's what I'm using it for, but it doesn't have to be so...  
 
 If you're interested in building this out more, send me an email or just fork the project.
 
 == Requirements
 * HTTParty (and Crack)
-* At least one Google Docs account -- though it's nice to have separate ones for dev and prod
+* A GoogleApps account (N.B. it's nice to have separate ones for dev and prod)
 
 == Quick setup
 * gem install dependencies (see requirements above)
-* Copy google_docs.rb to your Rails project lib directory
-* Make a file: config/google_docs.yml with settings for your environments,
+* Copy google_apps.rb to your Rails project lib directory
+* Make a file: config/google_apps.yml with settings for your environments,
 
   e.g.:
     development:
       email: soandso@gmail.com
       password: pass
   
-(Alternatively, or if you're not using Rails, just edit the google_docs.rb file so that @@config is a hash with this info.)
+(Alternatively, or if you're not using Rails, just edit the google_apps.rb file so that @@config is a hash with this info.)
 
 == Examples
 
 === Calendars API
 
 ==== List calendars on your account
-  g = GoogleDocs::Calendars.new
-  g.list
+  g = GoogleApps::CalendarsConnection.new
+  calendars = g.calendars
+  
+==== List events in a calendar
+  calendar = g.calendars.first
+  calendar.events
 
-==== Add an event to my calendar
-  g.create_event! :title => "My Event", :description => "Please come...", :starts_at => Time.zone.now, :ends_at => 1.day.from_now
+==== Add an event to my default calendar
+  calendar_event = g.create_event! :title => "My Event", :description => "Please come...", :starts_at => Time.zone.now, :ends_at => 1.day.from_now
 
+==== Destroy an event
+  calendar_event.destroy
+  
+  
 === Spreadsheets API
 
 ==== Create a spreadsheet
-  g = GoogleDocs::Spreadsheets.new
+  g = GoogleApps::SpreadsheetsConnection.new
   gs = g.create! :title => "My Cool Spreadsheet" 
 
 ==== Add collaborators to a spreadsheet

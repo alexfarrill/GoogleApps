@@ -1,6 +1,6 @@
-class GoogleDocs
+class GoogleApps
   include HTTParty
-  @@config = YAML::load(File.read(File.join(Rails.root, "config", "google_docs.yml")))
+  @@config = YAML::load(File.read(File.join(Rails.root, "config", "google_apps.yml")))
   
   #:spreadsheets, :spreadsheets_etag
   
@@ -57,7 +57,7 @@ class GoogleDocs
   # 
   #     @spreadsheets = []
   #     (doc/"entry").each do |d|
-  #       g = GoogleDocs::GoogleSpreadsheet.new :id => (d/"id").inner_html, :updated => (d/"updated").inner_html, :title => (d/"title").inner_html
+  #       g = GoogleApps::GoogleSpreadsheet.new :id => (d/"id").inner_html, :updated => (d/"updated").inner_html, :title => (d/"title").inner_html
   #       @spreadsheets << g
   #     end
   #   
@@ -67,7 +67,7 @@ class GoogleDocs
   #   end
   # end
   
-  class Spreadsheets < GoogleDocs
+  class SpreadsheetsConnection < GoogleApps
     attr_reader :token
 
     def initialize
@@ -112,7 +112,7 @@ class GoogleDocs
     end
   end
   
-  class Calendars < GoogleDocs
+  class CalendarsConnection < GoogleApps
     attr_reader :token
 
     def initialize
@@ -124,6 +124,10 @@ class GoogleDocs
       response = self.class.get "http://www.google.com/calendar/feeds/default/owncalendars/full", :headers => headers, :body => "", :query => {}
     end
     
+    def calendars
+      Array(GoogleCalendar.new(list))
+    end
+    
     def create_event!( opts = {} )
       headers = @token
       body = String.new
@@ -133,10 +137,13 @@ class GoogleDocs
         entry.title opts[:title], :type => "text"
         entry.content opts[:description], :type => "text"
         entry.tag! "gd:where", :valueString => opts[:location]
-        entry.tag! "gd:when", :startTime => opts[:starts_at].strftime("%Y-%m-%dT%H:%M:%S.000Z"), :endTime => opts[:ends_at].strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        entry.tag! "gd:when", :startTime => opts[:starts_at].utc.strftime("%Y-%m-%dT%H:%M:%S.000Z"), 
+          :endTime => opts[:ends_at].utc.strftime("%Y-%m-%dT%H:%M:%S.000Z")
       end
       
       response = self.class.post "http://www.google.com/calendar/feeds/default/private/full", :headers => headers, :body => body, :query => {}
+      doc = Crack::XML.parse(response)
+      GoogleCalendarEvent.new doc["entry"]
     end
   end
   
@@ -151,5 +158,61 @@ class GoogleSpreadsheet
     self.link = doc["entry"]["link"].detect{ |e| e["rel"] == "alternate" }["href"]
     self.title = doc["entry"]["title"]
     self.updated = doc["entry"]["updated"]
+  end
+end
+
+class GoogleCalendar
+  attr_accessor :id, :title, :event_feed_url, :updated
+  
+  def initialize( response )
+    doc = Crack::XML.parse(response)
+    feed = doc["feed"]
+    self.id = feed["entry"]["id"]
+    self.event_feed_url = feed["entry"]["link"].detect{ |e| e["rel"] == "alternate" }["href"]
+    self.title = feed["entry"]["title"]
+    self.updated = feed["entry"]["updated"]
+  end
+  
+  def events
+    token = GoogleApps::CalendarsConnection.new.token
+    headers = token
+    response = HTTParty.get event_feed_url, :headers => headers, :body => "", :query => {}
+    
+    if response.code / 100 == 2
+      # return an array of GoogleCalendarEvent's
+      doc = Crack::XML.parse(response)
+      doc["feed"]["entry"].collect do |entry|
+        GoogleCalendarEvent.new entry
+      end
+    else
+      raise response.inspect
+    end
+    
+  end
+end
+
+# An event in a calendar
+class GoogleCalendarEvent
+  attr_accessor :etag, :starts_at, :ends_at, :title, :edit_url
+  def initialize(entry)
+    if entry.is_a?(Hash)
+      entry.each{ |k,v| self.send("#{k}=", v) }
+    else
+      self.etag = entry["gd:etag"].gsub(/&[^;]+;/, '')
+      self.starts_at = entry["gd:when"]["startTime"]
+      self.ends_at = entry["gd:when"]["endTime"]
+      self.title = entry["title"]
+      self.edit_url = entry["link"].detect{ |e| e["rel"] == "edit" }["href"]
+    end
+  end
+  
+  def update(opts = {})
+  end
+  
+  def destroy(force = true)
+    # etags code needs work, not working
+    token = GoogleApps::CalendarsConnection.new.token
+    headers = force ? token.merge("If-Match" => "*") : token.merge("If-Match" => self.etag)
+    HTTParty.delete edit_url, :headers => headers, :body => "", :query => {}
   end
 end
