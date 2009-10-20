@@ -2,8 +2,6 @@ class GoogleApps
   include HTTParty
   @@config = YAML::load(File.read(File.join(Rails.root, "config", "google_apps.yml")))
   
-  #:spreadsheets, :spreadsheets_etag
-  
   def auth(service)
     # GOOGLE API SERVICES:
     # Google API  Service name
@@ -195,14 +193,14 @@ end
 class GoogleCalendarEvent
   attr_accessor :etag, :starts_at, :ends_at, :title, :edit_url
   def initialize(entry)
-    if entry.is_a?(Hash)
-      entry.each{ |k,v| self.send("#{k}=", v) }
-    else
+    if entry["id"]
       self.etag = entry["gd:etag"].gsub(/&[^;]+;/, '')
       self.starts_at = entry["gd:when"]["startTime"]
       self.ends_at = entry["gd:when"]["endTime"]
       self.title = entry["title"]
       self.edit_url = entry["link"].detect{ |e| e["rel"] == "edit" }["href"]
+    else
+      entry.each{ |k,v| self.send("#{k}=", v) }
     end
   end
   
