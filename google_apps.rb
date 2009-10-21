@@ -204,7 +204,32 @@ class GoogleCalendarEvent
     end
   end
   
-  def update(opts = {})
+  def update!(opts = {}, force = true)
+    # etags code needs work, not working
+    token = GoogleApps::CalendarsConnection.new.token
+    headers = force ? token.merge("If-Match" => "*") : token.merge("If-Match" => self.etag)
+    
+    body = String.new
+    builder = Builder::XmlMarkup.new(:indent => 2, :target => body)
+    builder.entry(:xmlns => "http://www.w3.org/2005/Atom", "xmlns:gd" => "http://schemas.google.com/g/2005", "xmlns:gCal" => "http://schemas.google.com/gCal/2005") do |entry|
+      entry.id edit_url
+      # from create_event:
+      entry.category :scheme => "http://schemas.google.com/g/2005#kind", :term => "http://schemas.google.com/g/2005#event"
+      entry.title opts[:title], :type => "text"
+      entry.content opts[:description], :type => "text"
+      entry.tag! "gd:where", :valueString => opts[:location]
+      entry.tag! "gd:when", :startTime => opts[:starts_at].utc.strftime("%Y-%m-%dT%H:%M:%S.000Z"), 
+        :endTime => opts[:ends_at].utc.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    end
+    
+    response = HTTParty.put edit_url, :headers => headers, :body => body, :query => {}    
+    if response.code / 100 == 2
+      # return a GoogleCalendarEvent
+      doc = Crack::XML.parse(response)
+      GoogleCalendarEvent.new doc["entry"]
+    else
+      raise response.inspect
+    end
   end
   
   def destroy(force = true)
