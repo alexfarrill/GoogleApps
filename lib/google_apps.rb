@@ -129,21 +129,7 @@ class GoogleApps
     end
     
     def create_event!( opts = {} )
-      headers = @token
-      body = String.new
-      builder = Builder::XmlMarkup.new(:indent => 2, :target => body)
-      builder.entry(:xmlns => "http://www.w3.org/2005/Atom", "xmlns:gd" => "http://schemas.google.com/g/2005") do |entry|
-        entry.category :scheme => "http://schemas.google.com/g/2005#kind", :term => "http://schemas.google.com/g/2005#event"
-        entry.title opts[:title], :type => "text"
-        entry.content opts[:description], :type => "text"
-        entry.tag! "gd:where", :valueString => opts[:location]
-        entry.tag! "gd:when", :startTime => opts[:starts_at].utc.strftime("%Y-%m-%dT%H:%M:%S.000Z"), 
-          :endTime => opts[:ends_at].utc.strftime("%Y-%m-%dT%H:%M:%S.000Z")
-      end
-      
-      response = self.class.post "http://www.google.com/calendar/feeds/default/private/full", :headers => headers, :body => body, :query => {}
-      doc = Crack::XML.parse(response)
-      GoogleCalendarEvent.new doc["entry"]
+      calendars.first.create_event! opts
     end
   end
   
@@ -171,9 +157,30 @@ class GoogleCalendar
     self.updated = entry["updated"]
   end
   
+  def create_event!( opts = {})
+    token = GoogleApps::CalendarsConnection.new.token
+    headers = token
+    
+    body = String.new
+    builder = Builder::XmlMarkup.new(:indent => 2, :target => body)
+    builder.entry(:xmlns => "http://www.w3.org/2005/Atom", "xmlns:gd" => "http://schemas.google.com/g/2005") do |entry|
+      entry.category :scheme => "http://schemas.google.com/g/2005#kind", :term => "http://schemas.google.com/g/2005#event"
+      entry.title opts[:title], :type => "text"
+      entry.content opts[:description], :type => "text"
+      entry.tag! "gd:where", :valueString => opts[:location]
+      entry.tag! "gd:when", :startTime => opts[:starts_at].utc.strftime("%Y-%m-%dT%H:%M:%S.000Z"), 
+        :endTime => opts[:ends_at].utc.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    end
+    
+    response = HTTParty.post event_feed_url, :headers => headers, :body => body, :query => {}
+    doc = Crack::XML.parse(response)
+    GoogleCalendarEvent.new doc["entry"]
+  end
+  
   def events
     token = GoogleApps::CalendarsConnection.new.token
     headers = token
+    
     response = HTTParty.get event_feed_url, :headers => headers, :body => "", :query => {}
     
     if response.code / 100 == 2
