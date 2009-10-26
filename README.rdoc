@@ -32,7 +32,11 @@ If you're interested in building this out more, send me an email or just fork th
   calendar.events
 
 ==== Add an event to my default calendar
-  calendar_event = g.create_event! :title => "My Event", :description => "Please come...", :starts_at => Time.zone.now, :ends_at => 1.day.from_now
+  calendar_event = g.create_event! :title => "My Event", :description => "Behind the scenes", :starts_at => Time.zone.now, :ends_at => 1.day.from_now
+
+==== Add an event to a specific calendar
+  calendar = g.calendars.detect{|cal| cal.title == "My Public Calendar"}
+  calendar.create_event! :title => "My Event", :description => "Open to the public", :starts_at => Time.zone.now, :ends_at => 1.day.from_now
 
 ==== Update an event
   calendar_event.update! :title => "Cool Event", :description => "Now with more fizz... BAM!", :starts_at => Time.zone.now, :ends_at => 1.day.from_now
