@@ -1,1 +1,1 @@
-v0.1. new project
+v0.1. First release, along with acts_as_google_calendar.  I will try to keep gems that depend on GoogleApps at the same release number.

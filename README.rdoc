@@ -52,7 +52,15 @@ If you're interested in building this out more, send me an email or just fork th
   gs = g.create! :title => "My Cool Spreadsheet" 
 
 ==== Add collaborators to a spreadsheet
-  g.add_user gs, ["ghostfacekillah@gmail.com", "raekwonthechef@gmail.com"], :writer
+  g.add_user gs, ["ghostfacekillah@example.com", "raekwonthechef@example.com"], :writer
 
 ==== Get a link to the spreadsheet
   gs.link
+
+== Improvements needed
+* A better test framework for testing expected behavior against XML responses from Google
+* Make connections less wasteful by using ETags and pooling
+* Break out google_apps.rb into utility-specific files, e.g. google_apps_connect.rb
+
+== Gems that depend on GoogleApps
+* acts_as_google_calendar
