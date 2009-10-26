@@ -118,11 +118,14 @@ class GoogleApps
 
     def list
       headers = @token
-      response = self.class.get "http://www.google.com/calendar/feeds/default/owncalendars/full", :headers => headers, :body => "", :query => {}
+      self.class.get "http://www.google.com/calendar/feeds/default/owncalendars/full", :headers => headers, :body => "", :query => {}
     end
     
     def calendars
-      Array(GoogleCalendar.new(list))
+      doc = Crack::XML.parse(list.body)
+      Array(doc["feed"]["entry"]).collect do |entry|
+        GoogleCalendar.new(entry)
+      end
     end
     
     def create_event!( opts = {} )
@@ -161,13 +164,11 @@ end
 class GoogleCalendar
   attr_accessor :id, :title, :event_feed_url, :updated
   
-  def initialize( response )
-    doc = Crack::XML.parse(response)
-    feed = doc["feed"]
-    self.id = feed["entry"]["id"]
-    self.event_feed_url = feed["entry"]["link"].detect{ |e| e["rel"] == "alternate" }["href"]
-    self.title = feed["entry"]["title"]
-    self.updated = feed["entry"]["updated"]
+  def initialize(entry)
+    self.id = entry["id"]
+    self.event_feed_url = entry["link"].detect{ |e| e["rel"] == "alternate" }["href"]
+    self.title = entry["title"]
+    self.updated = entry["updated"]
   end
   
   def events
