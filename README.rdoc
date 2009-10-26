@@ -4,7 +4,8 @@ This is really just a sketch of a library at the moment, but it will let you do 
 If you're interested in building this out more, send me an email or just fork the project.
 
 == Requirements
-* HTTParty (and Crack)
+* Crack
+* HTTParty v0.4.2 -- there seems to be an incompatibility with later versions that I'm looking into
 * A GoogleApps account (N.B. it's nice to have separate ones for dev and prod)
 
 == Quick setup
