@@ -4,8 +4,7 @@ This is really just a sketch of a library at the moment, but it will let you do 
 If you're interested in building this out more, send me an email or just fork the project.
 
 == Requirements
-* Crack
-* HTTParty v0.4.2 -- there seems to be an incompatibility with later versions that I'm looking into
+* HTTParty v0.4.2 & Crack
 * A GoogleApps account (N.B. it's nice to have separate ones for dev and prod)
 
 == Quick setup
@@ -35,6 +34,9 @@ If you're interested in building this out more, send me an email or just fork th
 ==== Add an event to my default calendar
   calendar_event = g.create_event! :title => "My Event", :description => "Behind the scenes", :starts_at => Time.zone.now, :ends_at => 1.day.from_now
 
+==== Add a recurring event
+  calendar_event = g.create_event! :title => "My Event", :description => "Behind the scenes", :starts_at => Time.zone.now, :ends_at => 1.hour.from_now, :recurrence => { :freq => :daily, :until => 1.week.from_now }
+  
 ==== Add an event to a specific calendar
   calendar = g.calendars.detect{|cal| cal.title == "My Public Calendar"}
   calendar.create_event! :title => "My Event", :description => "Open to the public", :starts_at => Time.zone.now, :ends_at => 1.day.from_now
