@@ -1,0 +1,2 @@
+ActiveSupport::CoreExtensions::Time::Conversions::DATE_FORMATS.merge! :ical => lambda { |time| time.utc.strftime("%Y%m%dT%H%M%S") }
+ActiveSupport::CoreExtensions::Date::Conversions::DATE_FORMATS.merge! :ical => lambda { |time| time.utc.strftime("%Y%m%d") }

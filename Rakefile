@@ -5,7 +5,7 @@ Echoe.new('GoogleApps', '0.1.0') do |p|
   p.url            = "http://github.com/alexfarrill/GoogleApps"
   p.author         = "Alex Farrill"
   p.email          = "alex.farrill@gmail.com"
-  p.ignore_pattern = ["tmp/*", "script/*"]
+  p.ignore_pattern = ["tmp/*", "script/*", "test_rails_app/*"]
   p.development_dependencies = []
 end
 
